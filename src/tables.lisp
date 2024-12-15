@@ -40,6 +40,12 @@
          (午 :wuxing 火) (未 :wuxing 土) (申 :wuxing 金)
          (酉 :wuxing 金) (戌 :wuxing 土) (亥 :wuxing 水))))
 
+(defun shift-in-array (array item &key (offset 1) (test 'eql))
+  (let ((pos (position item array :test test)))
+      (when pos
+        (aref array
+              (mod (+ pos offset) (length array))))))
+
 (defun next-solar-term (i)
   (aref +12-solar-terms+ (mod (1+ i) 12)))
 
