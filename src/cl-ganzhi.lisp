@@ -3,7 +3,7 @@
 (defvar *split-zi-shi* nil
   "如果值为 t , 以零点区分早晚子时。 这是个争论了几百年的问题了，影响 23：00 到 23：59：59 时间段的\"天干\"的计算。
 
-If value is 't', split 子时 at 0:00 . This is a controversial issue that people have been augmenting for hundreds years. Impact the calculation of 天干 of the day during 23:00 ~ 23:59:59.")
+If value is 't', split 子时 at 0:00 . This is a controversial issue that people have been auguring for hundreds years. Impact the calculation of 天干 of the day during 23:00 ~ 23:59:59.")
 
 (defun convert-timestring (timestring &key term-passed)
   "转换公历 timestring 到干支历。 
@@ -35,7 +35,7 @@ Convenient wrapper over ``convert``: ``(convert (local-time:now))``."
 
 日干支的计算受到变量 ``*split-zi-zhi`` 的影响，请参考该变量的文档。
 
-Convert ``time`` which is a ``local-time:timestamp`` to Chinese GanZhi calendar datetime. Returns a list of four dotted lists: GanZhi pair for year, month, day, and hour parts.
+Convert ``time`` which is a ``local-time:timestamp`` to Chinese GanZhi calendar date time. Returns a list of four dotted lists: GanZhi pair for year, month, day, and hour parts.
 
 This function **does not** handle solar term junction. If the ``time`` is inside the junction period of one of the 12 minor solar terms (十二节), a ``confirm-term`` condition is signaled. Caller should handle the condition by either invoking one of the two provided restarts ``as-passed`` and ``as-not-passed``, or by calling ``convert`` again with parameter ``term-passed`` set. 
 
@@ -54,7 +54,7 @@ Affected by variable ``*split-zi-shi*``, please refer to the variable's doc."
 (defun calc-xunkong (day-gan day-zhi)
   "计算旬空。 返回 dotted list (旬空1 . 旬空2) 。
 
-Calculation the two DiZhi which having a bye. Returns dotted list (bye1 . bye2)."
+Calculate the two DiZhi which having a bye. Returns dotted list (bye1 . bye2)."
   (let* ((day-gan-index (position day-gan +tiangan+))
 	 (day-zhi-index (position day-zhi +dizhi+))
 	 (kong-1 (+ (- 10 day-gan-index)
@@ -66,7 +66,7 @@ Calculation the two DiZhi which having a bye. Returns dotted list (bye1 . bye2).
 (define-condition confirm-term ()
   ((term :reader confirm-term-term :initarg :term))
   (:report (lambda (condition stream)
-             (format stream "Need to confirm whether term ~a is already passed."
+             (format stream "Need to confirm whether solar term ~a is already passed."
                      (confirm-term-term condition)))))
 
 (defun calc-month-zhi (time &key term-passed)
