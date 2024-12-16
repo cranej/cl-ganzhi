@@ -1,27 +1,5 @@
 (in-package #:cl-ganzhi)
 
-(defvar *split-zi-shi* nil
-  "如果值为 t , 以零点区分早晚子时。 这是个争论了几百年的问题了，影响 23：00 到 23：59：59 时间段的\"天干\"的计算。
-
-If value is 't', split 子时 at 0:00 . This is a controversial issue that people have been auguring for hundreds years. Impact the calculation of 天干 of the day during 23:00 ~ 23:59:59.")
-
-(defun convert-timestring (timestring &key term-passed)
-  "转换公历 timestring 到干支历。 
-
-* 如果 timestring 是 nil ， 约等于 ``(convert-now)``；
-* 否则约等于 ``(convert (parse-timestring timestring))``。
-
-Convenient wrapper over ``convert``:
-
-* if ``timestring`` is nil , roughly equals ``(convert-now)``;
-* otherwise roughly equals ``(convert (parse-timestring timestring))``."
-  (if timestring
-      (convert (local-time:parse-timestring timestring
-                                            :allow-missing-timezone-part t
-                                            :offset #.(* 8 3600))
-               :term-passed term-passed)
-      (convert-now :term-passed term-passed)))
-
 (defun convert-now (&key term-passed)
   "转换当前时间到干支历 == ``(convert (local-time:now))``。
 
@@ -37,37 +15,51 @@ Convenient wrapper over ``convert``: ``(convert (local-time:now))``."
 
 Convert ``time`` which is a ``local-time:timestamp`` to Chinese GanZhi calendar date time. Returns a list of four dotted lists: GanZhi pair for year, month, day, and hour parts.
 
-This function **does not** handle solar term junction. If the ``time`` is inside the junction period of one of the 12 minor solar terms (十二节), a ``confirm-term`` condition is signaled. Caller should handle the condition by either invoking one of the two provided restarts ``as-passed`` and ``as-not-passed``, or by calling ``convert`` again with parameter ``term-passed`` set. 
+This function **does not** handle solar term junction. If the ``time`` is inside the junction period of one of the 12 minor solar terms (十二节), a ``confirm-term`` condition is signaled. Caller should handle the condition by either invoking one of the two provided restarts ``as-passed`` and ``as-not-passed``, or by calling ``convert`` again with parameter ``term-passed`` set.
 
-Affected by variable ``*split-zi-shi*``, please refer to the variable's doc."
+Affected by variable ``*split-zi-shi*``, please refer to the variables' doc."
   (let* ((month-zhi (calc-month-zhi time :term-passed term-passed))
          (year-ganzhi (calc-year-ganzhi time month-zhi))
          (month-gan (calc-month-gan month-zhi (car year-ganzhi)))
          (day-ganzhi (calc-day-ganzhi time))
          (hour-ganzhi (calc-hour-ganzhi (local-time:timestamp-hour time)
-                                        (car day-ganzhi))))
-    (list year-ganzhi
-          (cons month-gan month-zhi)
-          day-ganzhi
-          hour-ganzhi)))
+                                        (car day-ganzhi)))
+         (result (list year-ganzhi
+                       (cons month-gan month-zhi)
+                       day-ganzhi
+                       hour-ganzhi)))
+    (if *no-chinese-character*
+        (loop for (g . z) in result
+              collect (cons (translate-symbol g) (translate-symbol z)))
+        result)))
 
 (defun calc-xunkong (day-gan day-zhi)
   "计算旬空。 返回 dotted list (旬空1 . 旬空2) 。
 
 Calculate the two DiZhi which having a bye. Returns dotted list (bye1 . bye2)."
+  (when *no-chinese-character*
+    (setf day-gan (car (rassoc day-gan +symbol-pinyin-map+)))
+    (setf day-zhi (car (rassoc day-zhi +symbol-pinyin-map+))))
+
   (let* ((day-gan-index (position day-gan +tiangan+))
 	 (day-zhi-index (position day-zhi +dizhi+))
 	 (kong-1 (+ (- 10 day-gan-index)
 		    day-zhi-index))
-	 (kong-2 (1+ kong-1)))
-    (cons (aref +dizhi+ (mod kong-1 12))
-	  (aref +dizhi+ (mod kong-2 12)))))
+	 (kong-2 (1+ kong-1))
+         (result (cons (aref +dizhi+ (mod kong-1 12))
+	               (aref +dizhi+ (mod kong-2 12)))))
+    (if *no-chinese-character*
+        (cons (translate-symbol (car result)) (translate-symbol (cdr result)))
+        result)))
 
 (define-condition confirm-term ()
   ((term :reader confirm-term-term :initarg :term))
   (:report (lambda (condition stream)
              (format stream "Need to confirm whether solar term ~a is already passed."
-                     (confirm-term-term condition)))))
+                     (or (and *no-chinese-character*
+                              (cdr (assoc (confirm-term-term condition)
+                                          +solar-terms-english+ :test 'equal)))
+                      (confirm-term-term condition))))))
 
 (defun calc-month-zhi (time &key term-passed)
   (local-time:with-decoded-timestamp (:month month :day day) time

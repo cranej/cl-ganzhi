@@ -54,3 +54,15 @@
                         (convert-timestring "2024-12-15T00:10:00"))))
         (and (equal (nth 3 split-off) (nth 3 split-on))
              (equal (nth 2 split-off) (nth 2 split-on))))))
+
+(test no-chinese-character-leak
+  (is (let ((*no-chinese-character* t))
+        (let ((ganzhi (convert-now))
+              (xunkong (calc-xunkong 'Jia 'Yin)))
+          (and (loop for (g . z) in ganzhi
+                     when (or (find g cl-ganzhi::+tiangan+)
+                              (find z cl-ganzhi::+dizhi+))
+                       do (return nil)
+                     finally (return t))
+               (not (find (car xunkong) cl-ganzhi::+dizhi+))
+               (not (find (cdr xunkong) cl-ganzhi::+dizhi+)))))))

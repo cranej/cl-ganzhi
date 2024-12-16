@@ -1,12 +1,31 @@
 (in-package :cl-ganzhi)
 
+(defconstant +symbol-pinyin-map+
+  '((甲 . Jia) (乙 . Yi) (丙 . Bing) (丁 . Ding) (戊 . Wu)
+    (己 . Ji) (庚 . Geng) (辛 . Xin) (壬 . Ren) (癸 . Gui)
+
+    (子 . Zi) (丑 . Chou) (寅 . Yin) (卯 . Mao) (辰 . Chen) (巳 . Si)
+    (午 . Wu) (未 . Wei) (申 . Shen) (酉 . You) (戌 . Xu) (亥 . Hai)
+
+    (木 . Wood) (火 . Fire) (土 . Earth)(金 . Metal) (水 . Water)))
+
 (eval-when (:compile-toplevel :load-toplevel :execute)
   (define-rrstruct (solar-term (:conc-name st-))
       (name string) (month fixnum) (junc-start fixnum) (junc-end fixnum) (dizhi symbol))
 
+  (defun translate-symbol (sym)
+    (cdr (assoc sym +symbol-pinyin-map+)))
+
   (defun symbol-with-plist (sym-data)
     (destructuring-bind (sym &rest plist) sym-data
       (setf (symbol-plist sym) plist)
+      (let ((pinyin-sym (translate-symbol sym)))
+        (when pinyin-sym
+          (setf (symbol-plist pinyin-sym)
+                (loop for (key value) on plist by #'cddr
+                      append (list key
+                                   (or (translate-symbol value)
+                                       value))))))
       sym)))
 
 (defconstant +12-solar-terms+
@@ -40,11 +59,19 @@
          (午 :wuxing 火) (未 :wuxing 土) (申 :wuxing 金)
          (酉 :wuxing 金) (戌 :wuxing 土) (亥 :wuxing 水))))
 
+(defconstant +solar-terms-english+
+  '(("立春" . "Spring Commences") ("惊蛰" . "Insects Waken")
+    ("清明" . "Bright and Clear") ("立夏" . "Summer Commences")
+    ("芒种" . "Grain in Ear") ("小暑" . "Moderate Heat")
+    ("立秋" . "Autumn Commences") ("白露" . "White Dew")
+    ("寒露" . "Cold Dew") ("立冬" . "Winter Commences")
+    ("大雪" . "Heavy Snow") ("小寒" . "Moderate Cold")))
+
 (defun shift-in-array (array item &key (offset 1) (test 'eql))
   (let ((pos (position item array :test test)))
-      (when pos
-        (aref array
-              (mod (+ pos offset) (length array))))))
+    (when pos
+      (aref array
+            (mod (+ pos offset) (length array))))))
 
 (defun next-solar-term (i)
   (aref +12-solar-terms+ (mod (1+ i) 12)))

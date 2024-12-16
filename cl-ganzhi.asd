@@ -8,6 +8,7 @@
   :in-order-to ((asdf:test-op (test-op #:cl-ganzhi/test)))
   :components ((:module "src" :serial t
                 :components ((:file "packages")
+                             (:file "specials")
                              (:file "utility")
                              (:file "tables")
 		             (:file "cl-ganzhi")))))
