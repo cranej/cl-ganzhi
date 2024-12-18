@@ -66,3 +66,12 @@
                      finally (return t))
                (not (find (car xunkong) cl-ganzhi::+dizhi+))
                (not (find (cdr xunkong) cl-ganzhi::+dizhi+)))))))
+
+(test no-chinese-character-leak-in-condition
+  (is (let ((*no-chinese-character* t))
+        (handler-case (convert-timestring "2024-02-03T15:00:00+08:00")
+          (confirm-term (c)
+            (string= (confirm-term-term c) "Spring Commences"))
+          (:no-error (result)
+            (declare (ignore result))
+            nil)))))

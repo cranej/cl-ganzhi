@@ -22,7 +22,7 @@ Functions
 
   Convert ``time`` which is a ``local-time:timestamp`` to Chinese GanZhi calendar date time. Returns a list of four dotted lists: GanZhi pair for year, month, day, and hour parts.
 
-  This function **does not** handle solar term junction. If the ``time`` is inside the junction period of one of the 12 minor solar terms (十二节), a ``confirm-term`` condition is signaled. Caller should handle the condition by either invoking one of the two provided restarts ``as-passed`` and ``as-not-passed``, or by calling ``convert`` again with parameter ``term-passed`` set. 
+  This function **does not** handle solar term junction. If the ``time`` is inside the junction period of one of the 12 minor solar terms (十二节), a ``confirm-term`` condition is signaled. Caller should handle the condition by either invoking one of the two provided restarts ``as-term-passed`` and ``as-term-not-passed``, or by calling ``convert`` again with parameter ``term-passed`` set. 
 
   Affected by variable ``*split-zi-shi*``, please refer to the variable's doc.
 

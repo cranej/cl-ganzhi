@@ -15,7 +15,7 @@ Convenient wrapper over ``convert``: ``(convert (local-time:now))``."
 
 Convert ``time`` which is a ``local-time:timestamp`` to Chinese GanZhi calendar date time. Returns a list of four dotted lists: GanZhi pair for year, month, day, and hour parts.
 
-This function **does not** handle solar term junction. If the ``time`` is inside the junction period of one of the 12 minor solar terms (十二节), a ``confirm-term`` condition is signaled. Caller should handle the condition by either invoking one of the two provided restarts ``as-passed`` and ``as-not-passed``, or by calling ``convert`` again with parameter ``term-passed`` set.
+This function **does not** handle solar term junction. If the ``time`` is inside the junction period of one of the 12 minor solar terms (十二节), a ``confirm-term`` condition is signaled. Caller should handle the condition by either invoking one of the two provided restarts ``as-term-passed`` and ``as-term-not-passed``, or by calling ``convert`` again with parameter ``term-passed`` set.
 
 Affected by variable ``*split-zi-shi*``, please refer to the variables' doc."
   (let* ((month-zhi (calc-month-zhi time :term-passed term-passed))
@@ -56,10 +56,7 @@ Calculate the two DiZhi which having a bye. Returns dotted list (bye1 . bye2)."
   ((term :reader confirm-term-term :initarg :term))
   (:report (lambda (condition stream)
              (format stream "Need to confirm whether solar term ~a is already passed."
-                     (or (and *no-chinese-character*
-                              (cdr (assoc (confirm-term-term condition)
-                                          +solar-terms-english+ :test 'equal)))
-                      (confirm-term-term condition))))))
+                     (confirm-term-term condition)))))
 
 (defun calc-month-zhi (time &key term-passed)
   (local-time:with-decoded-timestamp (:month month :day day) time
@@ -74,11 +71,16 @@ Calculate the two DiZhi which having a bye. Returns dotted list (bye1 . bye2)."
             ((> day junc-end)
              (st-dizhi term))
             (term-passed (st-dizhi term))
-            (t (restart-case (error 'confirm-term :term (st-name term))
-                 (as-passed ()
+            (t (restart-case (error 'confirm-term
+                                    :term (or (and *no-chinese-character*
+                                                   (cdr (assoc (st-name term)
+                                                               +solar-terms-english+
+                                                               :test 'equal)))
+                                           (st-name term)))
+                 (as-term-passed ()
                    :report "Treat as solar-term passed."
                    (st-dizhi term))
-                 (as-not-passed ()
+                 (as-term-not-passed ()
                    :report "Treat as solar-term has not passed yet."
                    (st-dizhi (prev-solar-term term-index)))))))))
 
