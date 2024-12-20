@@ -56,7 +56,8 @@ Calculate the two DiZhi which having a bye. Returns dotted list (bye1 . bye2)."
   ((term :reader confirm-term-term :initarg :term))
   (:report (lambda (condition stream)
              (format stream "Need to confirm whether solar term ~a is already passed."
-                     (confirm-term-term condition)))))
+                     (confirm-term-term condition))))
+  (:documentation "The date time been converting is inside the junction time period of the solar term named ``term``. User should confirm the information."))
 
 (defun calc-month-zhi (time &key term-passed)
   (local-time:with-decoded-timestamp (:month month :day day) time
