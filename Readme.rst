@@ -1,6 +1,10 @@
 =========================================================
 Convert the Gregorian calendar to Chinese GanZhi calendar
 =========================================================
+.. title:: cl-ganzhi - Convert the Gregorian calendar to Chinese GanZhi calendar
+
+Abstract
+========
 
 系统 ``cl-ganzhi`` 转换公历日期到干支历。
 
@@ -8,8 +12,17 @@ System ``cl-ganzhi`` converts date time in Gregorian calendar to date time in Ch
 
 I doubt that people who don't speak Chinese would have interests in ``cl-ganzhi``. Nevertheless, a special variable is provided to control the output character set, and English version documents are also provided.
 
+.. contents:: Table Of Contents
+
+Download
+========
+
+Please download from codeberg__.
+
+.. __: https://codeberg.org/cranej/cl-ganzhi
+
 Api
-=====
+===
 
 Functions
 ---------
