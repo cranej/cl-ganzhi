@@ -8,7 +8,7 @@ Abstract
 
 系统 ``cl-ganzhi`` 转换公历日期到干支历。
 
-System ``cl-ganzhi`` converts date time in Gregorian calendar to date time in Chinese GanZhi (干支) calendar (also known as Sexagenary Cycle Calendar).
+This system ``cl-ganzhi`` converts date time in Gregorian calendar to date time in Chinese GanZhi (干支) calendar (also known as Sexagenary Cycle Calendar).
 
 I doubt that people who don't speak Chinese would have interests in ``cl-ganzhi``. Nevertheless, a special variable is provided to control the output character set, and English version documents are also provided.
 
@@ -43,7 +43,7 @@ Functions
 
 * ``(convert-now &term-passed)``
   
-  转换当前时间到干支历 == ``(convert (local-time:now))``。
+  转换当前时间到干支历， 相当于 ``(convert (local-time:now))``。
 
   Convenient wrapper over ``convert``: ``(convert (local-time:now))``.
   
@@ -51,8 +51,8 @@ Functions
   
   转换公历 timestring 到干支历。 
 
-  + 如果 timestring 是 nil ， 约等于 ``(convert-now)``；
-  + 否则约等于 ``(convert (parse-timestring timestring))``。
+  + 如果 timestring 是 nil ， 相当于 ``(convert-now)``；
+  + 否则相当于 ``(convert (parse-timestring timestring))``。
 
   Convenient wrapper over ``convert``:
 
@@ -99,9 +99,9 @@ Implementation Notes
 
 Exact time of solar term beginning is essential to Chinese Sexagenary Cycle Calendar - months start at beginning of each 12 minor solar term, years start at beginning of Spring Commences.
 
-``cl-ganzhi`` does not calculate exact solar term beginning time as there is no algorithm able to calculate exact time (exact to the second or minute). To calculate the exact time, we needs astronomical data, and requires regular correction. Algorithms accurate to the day do exist, but I don't think they are useful for this scenario. On the contrary, leveraging such algorithms in ``cl-ganzhi`` is even harmful for users who need more accuracy.
+``cl-ganzhi`` does not calculate exact solar term beginning time (exact to the second or minute) as there is no algorithm able to do that. To calculate the exact time, we needs astronomical data, and requires regular calibration. Algorithms accurate to the day do exist, but I don't think they are useful for this scenario. On the contrary, leveraging such algorithms in ``cl-ganzhi`` is even harmful for users who need more accuracy.
 
-``cl-ganzhi`` rely on the users to provide such information. If ``cl-ganzhi`` is converting a date time which falls into the junction time period of one of the 12 minor solar terms, it signals a condition, users need to handle it (please refer to the documentation of function ``convert`` for details). For example, if the caller is a command line application, it may query end user whether the particular solar term is already passed or not. Or if the accuracy of the beginning of such a solar term is not important to the caller, it may choose a random value or calculate a result which is only exact to the day.
+``cl-ganzhi`` relies on the users to provide such information. If ``cl-ganzhi`` is converting a date time which falls into the junction time period of one of the 12 minor solar terms, it signals a condition, users need to handle it (please refer to the documentation of function ``convert`` for details). For example, if the caller is a command line application, it may query end user whether the particular solar term is already passed or not. Or if the accuracy of the beginning of such a solar term is not important to the caller, it may choose a random value or calculate a result which is only exact to the day.
 
 The junction time period of each solar term is a two or three days period (for example, the beginning of Spring Commences is always some point between Feb. 2 and Feb. 3 ). So for average use cases, users does not have to query it's end user about solar term junction frequently. 
 
@@ -112,7 +112,7 @@ The junction time period of each solar term is a two or three days period (for e
 
 但是考虑到有用户输入中文可能有困难，以及有些用户可能希望编程的时候尽量避免输入法切换， ``cl-ganzhi`` 提供了一个 special variable ``*no-chinese-character*`` 用来控制公共 Api 输出的字符集，详见该变量的文档。
 
-The ten Heavenly Stems and twelve Earthly Branches are the primitives of Chinese Sexagenary Cycle Calendar. These terms has no menaful translations in English other then Pinyin, and in a programming language has ``symbol`` type, they **should** be represented as ``symbol``, not ``string``. Thus ``cl-ganzhi`` exposes these primitives as Chinese character symbols like ``'甲 '乙 '子 '丑``, etc.
+The ten Heavenly Stems and twelve Earthly Branches are the primitives of Chinese Sexagenary Cycle Calendar. These terms has no meaningful translations in English other then Pinyin, and in a programming language has ``symbol`` type, they **should** be represented as ``symbol``, not ``string``. Thus ``cl-ganzhi`` exposes these primitives as Chinese character symbols like ``'甲 '乙 '子 '丑``, etc.
 
 However, consider that people who don't speak Chinese may have difficulties on typing these characters on computer, a special variable ``*no-chinese-character*`` is provided - when set to ``t``, outputs of all public Api are translated into Pinyin or English translations(if there is one). For example, ``'甲 '乙 '子 '丑`` becomes ``'Jia 'Yi 'Zi 'Chou``, '立春' becomes 'Spring Commences', and so on. 
 
