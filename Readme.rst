@@ -6,9 +6,9 @@ Convert the Gregorian calendar to Chinese GanZhi calendar
 Abstract
 ========
 
-系统 ``cl-ganzhi`` 转换公历日期到干支历。
+项目 ``cl-ganzhi`` 转换公历日期到干支历。
 
-This system ``cl-ganzhi`` converts date time in Gregorian calendar to date time in Chinese GanZhi (干支) calendar (also known as Sexagenary Cycle Calendar).
+This project ``cl-ganzhi`` converts date time in Gregorian calendar to date time in Chinese GanZhi (干支) calendar (also known as Sexagenary Cycle Calendar).
 
 I doubt that people who don't speak Chinese would have interests in ``cl-ganzhi``. Nevertheless, a special variable is provided to control the output character set, and English version documents are also provided.
 
@@ -20,6 +20,27 @@ Download
 Please download from codeberg__.
 
 .. __: https://codeberg.org/cranej/cl-ganzhi
+
+Examples
+========
+
+::
+
+   CL-GANZHI> (convert-now)
+   ((甲 . 辰) (丙 . 子) (辛 . 未) (乙 . 未))
+   
+   CL-GANZHI> (let ((*no-chinese-character* t))
+                (convert-timestring "2024-12-31T20:15:00+08:00"))
+   ((JIA . CHEN) (BING . ZI) (JI . SI) (JIA . XU))
+   
+   CL-GANZHI> (calc-xunkong '辛 '未)
+   (戌 . 亥)
+   
+   CL-GANZHI> (let ((*no-chinese-character* t))
+                (calc-xunkong 'XIN 'WEI))
+   (XU . HAI)
+   
+   CL-GANZHI> 
 
 Api
 ===
